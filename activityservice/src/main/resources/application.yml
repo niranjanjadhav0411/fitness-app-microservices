@@ -21,6 +21,6 @@ rabbitmq:
   exchange:
     name: fitness.exchange
   queue:
-    activity.queue
+    name: activity.queue
   routing:
-    activity.tracking
+    key: activity.tracking
