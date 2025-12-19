@@ -6,7 +6,6 @@ import com.fitness.activityservice.dto.ActivityResponse;
 import com.fitness.activityservice.model.Activity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class ActivityService {
     @Value("${rabbitmq.routing.key}")
     private String routingKey;
 
-    public @Nullable ActivityResponse trackActivity(ActivityRequest request) {
+    public ActivityResponse trackActivity(ActivityRequest request) {
 
         boolean isValidUser = userValidationService.validateUser(request.getUserId());
         if (!isValidUser) {
@@ -47,13 +46,14 @@ public class ActivityService {
 
         Activity savedActivity = activityRepository.save(activity);
 
+        // Publish to RabbitMQ for AI Processing
         try {
             rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity);
-        } catch (Exception e){
+        } catch(Exception e) {
             log.error("Failed to publish activity to RabbitMQ : ", e);
         }
-        
-        return mapToResponse(activity);
+
+        return mapToResponse(savedActivity);
     }
 
     private ActivityResponse mapToResponse(Activity activity){
@@ -70,14 +70,14 @@ public class ActivityService {
         return response;
     }
 
-    public @Nullable List<ActivityResponse> getUserActivities(String userId) {
+    public List<ActivityResponse> getUserActivities(String userId) {
         List<Activity> activities = activityRepository.findByUserId(userId);
         return activities.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    public @Nullable ActivityResponse getactivityById(String activityId) {
+    public ActivityResponse getActivityById(String activityId) {
         return activityRepository.findById(activityId)
                 .map(this::mapToResponse)
                 .orElseThrow(() -> new RuntimeException("Activity not found with id: " + activityId));
