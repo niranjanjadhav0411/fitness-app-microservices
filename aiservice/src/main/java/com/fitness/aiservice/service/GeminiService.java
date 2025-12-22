@@ -8,6 +8,12 @@ import org.springframework.web.client.RestClient;
 public class GeminiService {
     private final RestClient restClient;
 
+    @Value("${gemini.api.url}")
+    private String geminiApiUrl;
+
+    @Value("${gemini.api.key}")
+    private String geminiApiKey;
+
     public GeminiService(RestClient.Builder restClientBuilder) {
         this.restClient = restClientBuilder.build();
     }
