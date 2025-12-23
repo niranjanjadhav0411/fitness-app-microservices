@@ -1,20 +1,13 @@
 package com.fitness.aiservice.service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class GeminiService {
-    private final RestClient restClient;
+    private final WebClient webClient;
 
-    @Value("${gemini.api.url}")
-    private String geminiApiUrl;
-
-    @Value("${gemini.api.key}")
-    private String geminiApiKey;
-
-    public GeminiService(RestClient.Builder restClientBuilder) {
-        this.restClient = restClientBuilder.build();
+    public GeminiService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
     }
 }
